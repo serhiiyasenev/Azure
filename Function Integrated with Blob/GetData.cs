@@ -15,8 +15,22 @@ namespace Company.Function
             _logger = logger;
         }
 
+        [Function("GetText")]
+        public IActionResult RunText([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req, bool error = false)
+        {
+            if (error)
+            {
+                _logger.LogInformation("An error occurred");
+                return new BadRequestObjectResult("An error occurred");
+            }
+
+            _logger.LogInformation("Get text finished");
+            return new OkObjectResult("Hello World");
+        }
+
+
         [Function("GetImage")]
-        public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
             const string connectionString = "";
             const string containerName = "images";
@@ -32,11 +46,13 @@ namespace Company.Function
 
             byte[] imageBytes = ms.ToArray();
 
+            _logger.LogInformation("Return image");
+
             return new FileContentResult(imageBytes, "image/jpg");
         }
 
         [Function("GetImages")]
-        public static async Task<IActionResult> Run1([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
+        public async Task<IActionResult> Run1([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
             const string connectionString = "";
             const string containerName = "images";
@@ -64,6 +80,8 @@ namespace Company.Function
                 ContentType = image.ContentType,
                 Base64Content = Convert.ToBase64String(image.Content)
             });
+
+            _logger.LogInformation("Return images JsonResult");
 
             return new JsonResult(result);
         }
