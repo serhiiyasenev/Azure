@@ -56,4 +56,4 @@ jobs:
           app-name: 'serhii-api'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile_398d783b32804762a2954aca8d60251d }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
