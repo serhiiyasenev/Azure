@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - serhii-app
+name: Build and deploy ASP.Net Core app to Azure Web App - serhii-api
 
 on:
   push:
@@ -21,11 +21,14 @@ jobs:
         with:
           dotnet-version: '8.x'
 
+      - name: Restore dependencies
+        run: dotnet restore "Web Service Integrated with Database/Web Service Integrated with Database.sln"
+
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build "Web Service Integrated with Database/Web Service Integrated with Database.sln" --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish "Web Service Integrated with Database/Web Service Integrated with Database.sln" --configuration Release --output ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -45,12 +48,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'serhii-app'
+          app-name: 'serhii-api'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E8FA70EFA6A641B7ABD57F0385D55B0A }}
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_398d783b32804762a2954aca8d60251d }}
