@@ -8,6 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var sqlConnectionString = builder.Configuration.GetConnectionString("SqlDatabase");
+var blobConnectionString = builder.Configuration.GetConnectionString("BlobStorage");
+
 var app = builder.Build();
 
 app.UseSwagger();
@@ -43,10 +46,9 @@ app.MapGet("/test", () =>
 
 app.MapGet("/database", async context =>
 {
-    var connectionString =  "Server=tcp:serhii-test-server.database.windows.net,1433;Initial Catalog=serhii-test-db;Persist Security Info=False;User ID=serhii-test-server;{your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
     var users = new List<object>();
 
-    using (var connection = new SqlConnection(connectionString))
+    using (var connection = new SqlConnection(sqlConnectionString))
     {
         await connection.OpenAsync();
         using var command = new SqlCommand("SELECT UserId, UserName, Email, DateOfBirth, IsActive FROM Users", connection);
@@ -128,11 +130,10 @@ app.MapGet("/database", async context =>
 
 app.MapGet("/blob", async () =>
 {
-    const string connectionString = "";
     const string containerName = "files";
     const string blobName = "TEXT.txt";
 
-    var blobServiceClient = new BlobServiceClient(connectionString);
+    var blobServiceClient = new BlobServiceClient(blobConnectionString);
     var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
     var blobClient = containerClient.GetBlobClient(blobName);
 
