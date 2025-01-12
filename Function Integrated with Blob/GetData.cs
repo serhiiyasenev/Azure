@@ -2,6 +2,7 @@ using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 
 namespace Company.Function
@@ -18,6 +19,7 @@ namespace Company.Function
         }
 
         [Function("GetText")]
+        [OpenApiOperation(operationId: "GetText")]
         public IActionResult GetText([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req, bool error = false)
         {
             if (error)
@@ -32,6 +34,7 @@ namespace Company.Function
 
 
         [Function("GetImage")]
+        [OpenApiOperation(operationId: "GetImage")]
         public async Task<IActionResult> GetImage([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
             const string containerName = "images";
@@ -53,6 +56,7 @@ namespace Company.Function
         }
 
         [Function("GetImages")]
+        [OpenApiOperation(operationId: "GetImages")]
         public async Task<IActionResult> GetImages([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
             const string containerName = "images";
