@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Company.Function
 {
+    
     public class GetData
     {
         private readonly ILogger<GetData> _logger;
@@ -19,7 +20,7 @@ namespace Company.Function
         }
 
         [Function("GetText")]
-        [OpenApiOperation(operationId: "GetText")]
+        [OpenApiOperation(operationId: "GetText", ["GetData"])]
         public IActionResult GetText([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req, bool error = false)
         {
             if (error)
@@ -34,7 +35,7 @@ namespace Company.Function
 
 
         [Function("GetImage")]
-        [OpenApiOperation(operationId: "GetImage")]
+        [OpenApiOperation(operationId: "GetImage", ["GetData"])]
         public async Task<IActionResult> GetImage([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
             const string containerName = "images";
@@ -56,7 +57,7 @@ namespace Company.Function
         }
 
         [Function("GetImages")]
-        [OpenApiOperation(operationId: "GetImages")]
+        [OpenApiOperation(operationId: "GetImages", ["GetData"])]
         public async Task<IActionResult> GetImages([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
             const string containerName = "images";
@@ -71,7 +72,7 @@ namespace Company.Function
                 blobMetadataList.Add(new
                 {
                     Name = blobItem.Name,
-                    LastModified = blobItem.Properties.LastModified,
+                    LastModifiedUtc = blobItem.Properties.LastModified,
                     AccessTier = blobItem.Properties.AccessTier?.ToString(),
                     ArchiveStatus = blobItem.Properties.ArchiveStatus?.ToString(),
                     BlobType = blobItem.Properties.BlobType?.ToString(),
