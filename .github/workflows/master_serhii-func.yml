@@ -20,23 +20,24 @@ jobs:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@v4
 
-      - name: Setup .NET ${{ env.DOTNET_VERSION }} Environment
+      - name: 'Setup .NET ${{ env.DOTNET_VERSION }} Environment'
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: 'Build Solution'
-        shell: bash
+      - name: 'Build the solution'
         run: |
           pwd
           ls -la
           
-          dotnet build "Function Integrated with Blob/Function.sln" --configuration Release --output "./buildOutput"
+          dotnet build "Function Integrated with Blob/Function.sln" --configuration Release
 
-      - name: 'Publish for Azure Functions'
-        shell: bash
+      - name: 'Publish the Function project'
         run: |
-          dotnet publish "Function Integrated with Blob/Function.sln" --configuration Release --no-build --output "./buildOutput"
+          dotnet publish "Function Integrated with Blob/Function.csproj" \
+            --configuration Release \
+            --no-build \
+            --output "./buildOutput"
 
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
