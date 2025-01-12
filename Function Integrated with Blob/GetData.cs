@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Company.Function
 {
-    
     public class GetData
     {
         private readonly ILogger<GetData> _logger;
@@ -32,7 +31,6 @@ namespace Company.Function
             _logger.LogInformation("Get text finished");
             return new OkObjectResult("Hello World");
         }
-
 
         [Function("GetImage")]
         [OpenApiOperation(operationId: "GetImage", ["GetData"])]
