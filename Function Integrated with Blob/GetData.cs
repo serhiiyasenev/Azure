@@ -18,7 +18,7 @@ namespace Company.Function
         }
 
         [Function("GetText")]
-        public IActionResult RunText([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req, bool error = false)
+        public IActionResult GetText([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req, bool error = false)
         {
             if (error)
             {
@@ -32,7 +32,7 @@ namespace Company.Function
 
 
         [Function("GetImage")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
+        public async Task<IActionResult> GetImage([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
             const string containerName = "images";
             const string blobName = "img.jpg";
@@ -53,37 +53,32 @@ namespace Company.Function
         }
 
         [Function("GetImages")]
-        public async Task<IActionResult> Run1([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
+        public async Task<IActionResult> GetImages([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
             const string containerName = "images";
 
             var containerClient = new BlobContainerClient(_connectionString, containerName);
             var blobs = containerClient.GetBlobsAsync();
 
-            var imageFiles = new List<(string FileName, byte[] Content, string ContentType)>();
+            var blobMetadataList = new List<object>();
 
-            await foreach (var blob in blobs)
+            await foreach (var blobItem in blobs)
             {
-                var blobClient = containerClient.GetBlobClient(blob.Name);
-
-                var ms = new MemoryStream();
-                await blobClient.DownloadToAsync(ms);
-                ms.Position = 0;
-
-                string contentType = blob.Properties.ContentType ?? "application/octet-stream";
-                imageFiles.Add((blob.Name, ms.ToArray(), contentType));
+                blobMetadataList.Add(new
+                {
+                    Name = blobItem.Name,
+                    LastModified = blobItem.Properties.LastModified,
+                    AccessTier = blobItem.Properties.AccessTier?.ToString(),
+                    ArchiveStatus = blobItem.Properties.ArchiveStatus?.ToString(),
+                    BlobType = blobItem.Properties.BlobType?.ToString(),
+                    SizeInKiB = Math.Round((decimal)(blobItem.Properties.ContentLength / 1024.00), 2),
+                    LeaseState = blobItem.Properties.LeaseState?.ToString()
+                });
             }
-
-            var result = imageFiles.Select(image => new
-            {
-                FileName = image.FileName,
-                ContentType = image.ContentType,
-                Base64Content = Convert.ToBase64String(image.Content)
-            });
 
             _logger.LogInformation("Return images JsonResult");
 
-            return new JsonResult(result);
+            return new JsonResult(blobMetadataList);
         }
     }
 }
