@@ -9,10 +9,12 @@ namespace Company.Function
     public class GetData
     {
         private readonly ILogger<GetData> _logger;
+        private readonly string _connectionString;
 
         public GetData(ILogger<GetData> logger)
         {
             _logger = logger;
+            _connectionString = Environment.GetEnvironmentVariable("BlobConnectionString");
         }
 
         [Function("GetText")]
@@ -32,11 +34,10 @@ namespace Company.Function
         [Function("GetImage")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
-            const string connectionString = "";
             const string containerName = "images";
             const string blobName = "img.jpg";
 
-            var containerClient = new BlobContainerClient(connectionString, containerName);
+            var containerClient = new BlobContainerClient(_connectionString, containerName);
 
             var blobCLient = containerClient.GetBlobClient(blobName);
 
@@ -54,10 +55,9 @@ namespace Company.Function
         [Function("GetImages")]
         public async Task<IActionResult> Run1([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
-            const string connectionString = "";
             const string containerName = "images";
 
-            var containerClient = new BlobContainerClient(connectionString, containerName);
+            var containerClient = new BlobContainerClient(_connectionString, containerName);
             var blobs = containerClient.GetBlobsAsync();
 
             var imageFiles = new List<(string FileName, byte[] Content, string ContentType)>();
