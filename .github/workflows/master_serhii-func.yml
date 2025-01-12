@@ -4,14 +4,13 @@
 name: Build and deploy dotnet core project to Azure Function App - serhii-func
 
 on:
-  push:
-    branches:
-      - master
+  # push:
+  #   branches:
+  #     - master
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
-  DOTNET_VERSION: '8' # set this to the dotnet version to use
+  DOTNET_VERSION: '8'
 
 jobs:
   build-and-deploy:
@@ -21,25 +20,30 @@ jobs:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@v4
 
-      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+      - name: Setup .NET ${{ env.DOTNET_VERSION }} Environment
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: 'Resolve Project Dependencies Using Dotnet'
+      - name: 'Build Solution'
         shell: bash
         run: |
-          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet build --configuration Release --output ./output
-          popd
-      
+          pwd
+          ls -la
+          
+          dotnet build "Function Integrated with Blob/Function.sln" --configuration Release --output "./buildOutput"
+
+      - name: 'Publish for Azure Functions'
+        shell: bash
+        run: |
+          dotnet publish "Function Integrated with Blob/Function.sln" --configuration Release --no-build --output "./buildOutput"
+
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
         id: fa
         with:
           app-name: 'serhii-func'
           slot-name: 'Production'
-          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+          package: './buildOutput'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E17B06FF452B4DCF82EB22C83985BA55 }}
           sku: 'flexconsumption'
-        
