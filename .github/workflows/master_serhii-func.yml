@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOTNET_VERSION: '8'
+  DOTNET_VERSION: '8.x'
 
 jobs:
   build-and-deploy:
