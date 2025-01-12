@@ -44,7 +44,7 @@ app.MapGet("/test", () =>
 .WithName("test")
 .WithOpenApi();
 
-app.MapGet("/database", async context =>
+app.MapGet("/database", async (HttpContext context) =>
 {
     var users = new List<object>();
 
@@ -121,12 +121,10 @@ app.MapGet("/database", async context =>
 </body>
 </html>";
 
-    context.Response.ContentType = "text/html";
-    await context.Response.WriteAsync(html);
+    return Results.Content(html, "text/html");
 })
 .WithName("Database")
 .WithOpenApi();
-
 
 app.MapGet("/blob", async () =>
 {
