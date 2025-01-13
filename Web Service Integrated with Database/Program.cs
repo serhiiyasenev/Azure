@@ -13,6 +13,17 @@ var blobConnectionString = builder.Configuration.GetConnectionString("BlobStorag
 
 var app = builder.Build();
 
+app.Use(async (context, next) =>
+{
+    // Incoming log
+    app.Logger.LogInformation($"Incoming request: '{context.Request.Method}' {context.Request.Path}");
+
+    await next();
+
+    // Response log
+    app.Logger.LogInformation($"Response status code: {context.Response.StatusCode}");
+});
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
