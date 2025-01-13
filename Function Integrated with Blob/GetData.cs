@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace Function;
 
@@ -20,6 +21,8 @@ public class GetData
 
     [Function("GetText")]
     [OpenApiOperation(operationId: "GetText", ["GetData"])]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Return a simple text")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Bad request")]
     public IActionResult GetText([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req, bool error = false)
     {
         if (error)
@@ -34,6 +37,8 @@ public class GetData
 
     [Function("GetImage")]
     [OpenApiOperation(operationId: "GetImage", ["GetData"])]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "image/jpg", bodyType: typeof(byte[]), Description = "Returns JPG image")]
+    [OpenApiResponseWithoutBody(HttpStatusCode.BadRequest, Description = "Something went wrong")]
     public async Task<IActionResult> GetImage([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
     {
         const string containerName = "images";
@@ -56,6 +61,8 @@ public class GetData
 
     [Function("GetImages")]
     [OpenApiOperation(operationId: "GetImages", ["GetData"])]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<object>), Description = "Returns the list of blob metadata.")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest,Description = "Bad request")]
     public async Task<IActionResult> GetImages([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
     {
         const string containerName = "images";
