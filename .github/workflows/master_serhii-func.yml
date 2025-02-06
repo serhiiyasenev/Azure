@@ -12,19 +12,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Setup .NET Environment
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+
       - name: Build the solution
-        run: |
-          dotnet build "Function Integrated with Blob/Function.sln" --configuration Release
+        run: dotnet build "Function Integrated with Blob/Function.sln" --configuration Release
+
       - name: Publish the Function project
         run: |
           dotnet publish "Function Integrated with Blob/Function.csproj" \
             --configuration Release \
             --no-build \
             --output ./buildOutput
+
       - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
@@ -43,12 +46,17 @@ jobs:
         with:
           name: function-app
           path: ./function-app
+
+      - name: List deployment package contents
+        run: ls -la ./function-app
+
       - name: Deploy to Azure Function App
         id: deploy-function
         uses: Azure/functions-action@v1
         with:
           app-name: 'serhii-func'
-          slot-name: 'Production'
           package: ./function-app
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E17B06FF452B4DCF82EB22C83985BA55 }}
           sku: 'flexconsumption'
+          scm-do-build-during-deployment: true
+          remote-build: true
