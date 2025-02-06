@@ -1,62 +1,53 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
 name: Build and deploy dotnet core project to Azure Function App - serhii-func
 
 on:
+  # push:
+  #   branches:
+  #     - master
   workflow_dispatch:
 
 env:
   DOTNET_VERSION: '8.x'
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: 'https://serhii-func.azurewebsites.net/swagger/ui'
+      
     steps:
-      - name: Checkout repository
+      - name: 'Checkout GitHub Action'
         uses: actions/checkout@v4
 
-      - name: Setup .NET Environment
-        uses: actions/setup-dotnet@v4
+      - name: 'Setup .NET ${{ env.DOTNET_VERSION }} Environment'
+        uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Build the solution
-        run: dotnet build "Function Integrated with Blob/Function.sln" --configuration Release
+      - name: 'Build the solution'
+        run: |
+          pwd
+          ls -la
+          
+          dotnet build "Function Integrated with Blob/Function.sln" --configuration Release
 
-      - name: Publish the Function project
+      - name: 'Publish the Function project'
         run: |
           dotnet publish "Function Integrated with Blob/Function.csproj" \
             --configuration Release \
             --no-build \
-            --output ./buildOutput
+            --output "./buildOutput"
 
-      - name: Upload artifact for deployment
-        uses: actions/upload-artifact@v4
-        with:
-          name: function-app
-          path: ./buildOutput
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: Production
-      url: 'https://serhii-func.azurewebsites.net/swagger/ui'
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: function-app
-          path: ./function-app
-
-      - name: List deployment package contents
-        run: ls -la ./function-app
-
-      - name: Deploy to Azure Function App
-        id: deploy-function
+      - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
+        id: fa
         with:
           app-name: 'serhii-func'
-          package: ./function-app
+          slot-name: 'Production'
+          package: './buildOutput'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E17B06FF452B4DCF82EB22C83985BA55 }}
           sku: 'flexconsumption'
-          scm-do-build-during-deployment: true
-          remote-build: true
